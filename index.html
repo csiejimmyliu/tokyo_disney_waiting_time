@@ -84,50 +84,24 @@
     margin-bottom: 0.25rem;
   }
 
-  /* ── Upload zone ── */
-  .upload-zone {
-    border: 1.5px dashed var(--border);
-    border-radius: 12px;
-    padding: 2.5rem;
+  /* ── Loading ── */
+  .loading {
     text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    margin-bottom: 2rem;
-  }
-
-  .upload-zone:hover, .upload-zone.drag-over {
-    border-color: var(--accent);
-    background: var(--glow);
-  }
-
-  .upload-zone input { display: none; }
-
-  .upload-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
-    opacity: 0.6;
-  }
-
-  .upload-zone p {
+    padding: 3rem;
     color: var(--muted);
-    font-size: 0.9rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
   }
 
-  .upload-zone strong {
-    color: var(--accent);
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
+  .loading.error { color: #f87171; }
 
   /* ── Main layout ── */
   .main {
-    display: none;
+    display: flex;
     gap: 1.5rem;
     flex-direction: column;
   }
-
-  .main.visible { display: flex; }
 
   /* ── Controls panel ── */
   .controls {
@@ -283,12 +257,8 @@
     </div>
   </header>
 
-  <!-- Upload -->
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="csvFile" accept=".csv">
-    <div class="upload-icon">📂</div>
-    <p>將 <strong onclick="document.getElementById('csvFile').click()">disney_wait_times_avg.csv</strong> 拖曳至此，或點擊選擇</p>
-  </div>
+  <!-- Loading -->
+  <div class="loading" id="loadingMsg">Loading data...</div>
 
   <!-- Main content -->
   <div class="main" id="mainContent">
@@ -519,31 +489,26 @@ function buildStats(slots) {
   });
 }
 
-// ── 檔案上傳 ──
-function handleFile(file) {
-  if (!file || !file.name.endsWith('.csv')) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const { rides, slots, data } = parseCSV(e.target.result);
-    document.getElementById('uploadZone').style.display = 'none';
-    document.getElementById('mainContent').classList.add('visible');
+// ── 自動 fetch CSV ──
+const CSV_URL = 'https://raw.githubusercontent.com/csiejimmyliu/tokyo_disney_waiting_time/main/disney_wait_times_avg.csv';
+
+async function loadCSV() {
+  const msg = document.getElementById('loadingMsg');
+  try {
+    const r = await fetch(CSV_URL);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text = await r.text();
+    const { rides, slots, data } = parseCSV(text);
+    msg.style.display = 'none';
     if (chart) { chart.destroy(); chart = null; }
     initChart(rides, slots, data);
-  };
-  reader.readAsText(file, 'utf-8');
+  } catch (e) {
+    msg.className = 'loading error';
+    msg.textContent = `Failed to load data: ${e.message}`;
+  }
 }
 
-document.getElementById('csvFile').addEventListener('change', e => handleFile(e.target.files[0]));
-
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('click', () => document.getElementById('csvFile').click());
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('drag-over');
-  handleFile(e.dataTransfer.files[0]);
-});
+loadCSV();
 </script>
 </body>
 </html>
