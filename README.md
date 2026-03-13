@@ -1,5 +1,8 @@
 # Tokyo DisneySea Wait Time Analyzer
 
+[Web Link](https://csiejimmyliu.github.io/tokyo_disney_waiting_time/index.html)
+
+
 Fetches historical wait times from Queue-Times.com, averages them over the past 7 days, and exports a CSV for visualization.
 
 ## Setup
