@@ -243,6 +243,75 @@
     color: var(--muted);
     margin-left: 0.2rem;
   }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    body {
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      font-size: 0.6rem;
+    }
+
+    header {
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+    }
+
+    .controls {
+      padding: 1rem;
+    }
+
+    .ride-grid {
+      gap: 0.5rem;
+    }
+
+    .ride-chip {
+      font-size: 0.75rem;
+      padding: 0.45rem 0.8rem;
+      /* 更大的觸控區域 */
+      min-height: 36px;
+    }
+
+    .chart-wrap {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .chart-wrap canvas {
+      max-height: 280px;
+    }
+
+    /* stats 手機改成 2 欄 */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .stat-card {
+      min-width: unset;
+      padding: 0.75rem 0.9rem;
+    }
+
+    .stat-value {
+      font-size: 1.2rem;
+    }
+
+    .stat-name {
+      font-size: 0.72rem;
+    }
+
+    .btn-sm {
+      font-size: 0.6rem;
+      padding: 0.35rem 0.8rem;
+      min-height: 32px;
+    }
+  }
 </style>
 </head>
 <body>
