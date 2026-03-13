@@ -193,8 +193,17 @@
     position: relative;
   }
 
-  .chart-wrap canvas {
-    max-height: 480px;
+  /* 桌面：捲軸容器不需要捲動 */
+  .chart-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 桌面：chart 高度固定，寬度自適應 */
+  .chart-inner {
+    position: relative;
+    height: 480px;
+    min-width: 100%;
   }
 
   /* ── Stats bar ── */
@@ -244,7 +253,7 @@
     margin-left: 0.2rem;
   }
 
-  /* ── Mobile ── */
+  /* ── Mobile 直立 ── */
   @media (max-width: 640px) {
     body {
       padding: 1rem;
@@ -274,7 +283,6 @@
     .ride-chip {
       font-size: 0.75rem;
       padding: 0.45rem 0.8rem;
-      /* 更大的觸控區域 */
       min-height: 36px;
     }
 
@@ -282,8 +290,10 @@
       padding: 0.75rem 0.5rem;
     }
 
-    .chart-wrap canvas {
-      max-height: 280px;
+    /* 直立：原本 280px × 2 = 560px */
+    .chart-inner {
+      height: 560px;
+      min-width: 800px; /* 超出螢幕寬度，觸發橫向捲軸 */
     }
 
     /* stats 手機改成 2 欄 */
@@ -310,6 +320,24 @@
       font-size: 0.6rem;
       padding: 0.35rem 0.8rem;
       min-height: 32px;
+    }
+  }
+
+  /* ── Mobile 橫向 ── */
+  /* 橫向時 window.innerHeight 較小，用 orientation: landscape 偵測 */
+  @media (max-width: 900px) and (orientation: landscape) {
+    body {
+      padding: 0.75rem 1rem;
+    }
+
+    .chart-wrap {
+      padding: 0.75rem 0.5rem;
+    }
+
+    /* 橫向：原本 480px × 1.2 = 576px */
+    .chart-inner {
+      height: 576px;
+      min-width: 1000px; /* 橫向螢幕較寬，min-width 也加大 */
     }
   }
 </style>
@@ -344,7 +372,11 @@
 
     <!-- Chart -->
     <div class="chart-wrap">
-      <canvas id="myChart"></canvas>
+      <div class="chart-scroll">
+        <div class="chart-inner">
+          <canvas id="myChart"></canvas>
+        </div>
+      </div>
     </div>
 
     <!-- Stats -->
@@ -462,6 +494,7 @@ function buildChart(slots) {
     data: { labels: slots, datasets },
     options: {
       responsive: true,
+      maintainAspectRatio: false,  // 讓圖表填滿 .chart-inner 的高度
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
@@ -485,7 +518,6 @@ function buildChart(slots) {
           grid: {
             color: (ctx) => {
               const label = ctx.chart.data.labels[ctx.index] || '';
-              // 只在 :00 或 :15 或 :30 或 :45 畫 grid line
               const min = label.slice(3, 5);
               return ['00','15','30','45'].includes(min) ? '#1e2d45' : 'transparent';
             }
@@ -578,6 +610,8 @@ async function loadCSV() {
 }
 
 loadCSV();
+
+// ── 螢幕旋轉時強制 resize chart ──
 function onOrientationChange() {
   setTimeout(() => {
     if (chart) chart.resize();
@@ -593,7 +627,6 @@ window.addEventListener('resize', () => {
     if (chart) chart.resize();
   }, 150);
 });
-
 </script>
 </body>
 </html>
