@@ -578,6 +578,22 @@ async function loadCSV() {
 }
 
 loadCSV();
+function onOrientationChange() {
+  setTimeout(() => {
+    if (chart) chart.resize();
+  }, 300);
+}
+
+window.addEventListener('orientationchange', onOrientationChange);
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (chart) chart.resize();
+  }, 150);
+});
+
 </script>
 </body>
 </html>
